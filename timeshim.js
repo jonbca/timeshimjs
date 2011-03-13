@@ -155,43 +155,28 @@ var TimeShim = (function () {
                     month_s = '0',
                     month = 0;
                 if (year_s.length < 4) {
-                    throw {
-                        name: "InvalidDate",
-                        message: ["Given year", year_s, "is not a valid year."].join(' ')
-                    };
+                    return;
                 }
 
                 year = parseInt(year_s, 10);
                 if (year <= 0) {
-                    throw {
-                        name: "InvalidDate",
-                        message: ["Given year", year_s, "is not greater than 0"].join(' ')
-                    };
+                    return;
                 }
 
                 if (coll.isFinished() || coll.peek() !== '-') {
-                    throw {
-                        name: "InvalidDate",
-                        message: "Date string has no month"
-                    };
+                    return;
                 } else {
                     coll.skip();
                 }
 
                 month_s = coll.collectSequence(/\d/);
                 if (month_s.length !== 2) {
-                    throw {
-                        name: "InvalidDate",
-                        message: ["Given month", month_s, "is not 2 digits long."].join(' ')
-                    };
+                    return;
                 }
 
                 month = parseInt(month_s, 10);
                 if (month < 0 || month > 12) {
-                    throw {
-                        name: "InvalidDate",
-                        message: ["Given month", month_s, "is not between 1 and 12."].join(' ')
-                    };
+                    return;
                 }
 
                 return {
@@ -202,33 +187,30 @@ var TimeShim = (function () {
 
             dp.parseDateComponent = function (coll) {
                 var dateObj = dp.parseMonthComponent(coll),
-                    maxDay = getDaysForMonth(dateObj.year, dateObj.month),
+                    maxDay = 0,
                     date_s = '0',
                     date = 0;
 
+                if (!dateObj) {
+                    return;
+                }
+
+                maxDay = getDaysForMonth(dateObj.year, dateObj.month);
+
                 if (coll.isFinished() || coll.peek() !== '-') {
-                    throw {
-                        name: "InvalidDate",
-                        message: "Date string has no day"
-                    };
+                    return;
                 } else {
                     coll.skip();
                 }
 
                 date_s = coll.collectSequence(/\d/);
                 if (date_s.length !== 2) {
-                    throw {
-                        name: "InvalidDate",
-                        message: ["Given day", date_s, "is not 2 digits long."].join(' ')
-                    };
+                    return;
                 }
 
                 date = parseInt(date_s, 10);
                 if (date < 1 || date > maxDay) {
-                    throw {
-                        name: "InvalidDate",
-                        message: ["Given day", date_s, "is not between 1 and", maxDay, "."].join(' ')
-                    };
+                    return;
                 }
 
                 dateObj.day = date;
@@ -246,43 +228,28 @@ var TimeShim = (function () {
                     nextTwoAreDigits = false,
                     possibleSeconds = '';
                 if (hour_s.length !== 2) {
-                    throw {
-                        name: "InvalidTime",
-                        message: ["Hour", hour_s, "is not 2 digits long."].join(' ')
-                    };
+                    return;
                 }
 
                 hour = parseInt(hour_s, 10);
                 if (hour < 0 || hour > 23) {
-                    throw {
-                        name: "InvalidTime",
-                        message: ["Hour", hour_s, "is not between 0 and 23."].join(' ')
-                    };
+                    return;
                 }
 
                 if (coll.isFinished() || coll.peek() !== ':') {
-                    throw {
-                        name: "InvalidTime",
-                        message: "There is no minutes component."
-                    };
+                    return;
                 } else {
                     coll.skip();
                 }
 
                 minute_s = coll.collectSequence(/\d/);
                 if (minute_s.length !== 2) {
-                    throw {
-                        name: "InvalidTime",
-                        message: ["Minute", minute_s, "is not 2 digits long."].join(' ')
-                    };
+                    return;
                 }
 
                 minute = parseInt(minute_s, 10);
                 if (minute < 0 || minute > 59) {
-                    throw {
-                        name: "InvalidTime",
-                        message: ["Minute", minute_s, "is not between 0 and 59."].join(' ')
-                    };
+                    return;
                 }
 
                 second_s = '0';
@@ -302,10 +269,7 @@ var TimeShim = (function () {
 
                 second = parseFloat(second_s);
                 if (second < 0 || second >= 60) {
-                    throw {
-                        name: "InvalidTime",
-                        message: ["Seconds", second_s, "is not between 0 and 59"].join(" ")
-                    };
+                    return;
                 }
 
                 return {
@@ -318,8 +282,8 @@ var TimeShim = (function () {
             dp.parseDateOrTimeString = function () {
                 var coll = collector(dateString),
                     startPosition = 0,
-                    dateObj = {},
-                    timeObj = {},
+                    dateObj = null,
+                    timeObj = null,
                     result = null;
 
                 if (inContent) {
@@ -327,22 +291,27 @@ var TimeShim = (function () {
                 }
 
                 startPosition = coll.getPosition();
-                try {
-                    dateObj = dp.parseDateComponent(coll);
-                } catch (e) {
+
+                dateObj = dp.parseDateComponent(coll);
+                if (!dateObj) {
                     datePresent = false;
+                    dateObj = {};
                 }
 
-                if (datePresent && coll.peek() === 'T') {
+                if (datePresent && !coll.isFinished() && coll.peek() === 'T') {
                     coll.skip(1);
                 } else if (datePresent && (coll.isFinished() || coll.peek() !== 'T')) {
                     timePresent = false;
+                    timeObj = {};
                 } else {
                     coll.seek(startPosition);
                 }
 
                 if (timePresent) {
                     timeObj = dp.parseTimeComponent(coll);
+                    if (!timeObj) {
+                        return;
+                    }
                 }
 
                 if (datePresent || timePresent) {
@@ -390,10 +359,13 @@ var TimeShim = (function () {
         collector: collector,
         dateProcessor: dateProcessor,
 
-        apply: function () {},
+        apply: function () {
+            var elements = document.getElementsByTagName('time'),
+                i = 0;
 
-        applyToElement: function (timeElement) {
-            // console.log(timeElement);
+            for (i = elements.length; i >= 0; i -= 1) {
+                this.processElement(elements[i]);
+            }
         },
 
         needsDate: function (element) {

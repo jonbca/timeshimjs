@@ -122,9 +122,7 @@ describe("TimeShimCollectSequence", function () {
 		var collector = TimeShim.collector(seq);
 		
 		expect(collector.collectSequence(/[a-z]/)).toEqual("dfkjsl");
-		expect(collector.stripLinebreaks).toThrow({
-			message: "You cannot strip leading/trailing whitespace once you have begun collecting from the input.",
-		});
+		expect(collector.stripLinebreaks).toThrow();
 	});
 	
 	it('should peek at 1 element when no count is specified', function () {
@@ -156,7 +154,7 @@ describe("TimeShimCollectSequence", function () {
 		var seq = "abcd";
 		var collector = TimeShim.collector(seq);
 		
-		expect(function () {collector.peek(-5)}).toThrow();	
+		expect(function () {collector.peek(-5)}).toThrow();
 	});
 	
 	it('should return from the middle of the string', function () {
@@ -186,49 +184,37 @@ describe("DateProcessor", function () {
 	it('should refuse to parse a bad year in a month component', function () {
 		var coll = TimeShim.collector('100-12-26');
 		
-		expect(function () {
-			dp.parseMonthComponent(coll);
-		}).toThrow();
+		expect(dp.parseMonthComponent(coll)).not.toBeDefined();
 	});
 	
 	it('should refuse to parse a 0 year in a month component', function () {
 		var coll = TimeShim.collector('0000-12-26');
 		
-		expect(function () {
-			dp.parseMonthComponent(coll);
-		}).toThrow();
+		expect(dp.parseMonthComponent(coll)).not.toBeDefined();
 	});
 	
 	it('should refuse to parse a bad month in a month component', function () {
 		var coll = TimeShim.collector('2100-13-26');
 		
-		expect(function () {
-			dp.parseMonthComponent(coll);
-		}).toThrow();
+		expect(dp.parseMonthComponent(coll)).not.toBeDefined();
 	});
 	
 	it('should refuse to parse a bad date in a month component', function () {
 		var coll = TimeShim.collector('210013');
 		
-		expect(function () {
-			dp.parseMonthComponent(coll);
-		}).toThrow();
+		expect(dp.parseMonthComponent(coll)).not.toBeDefined();
 	});
 	
 	it('should refuse to parse a bad date in a month component', function () {
 		var coll = TimeShim.collector('2100d13');
 		
-		expect(function () {
-			dp.parseMonthComponent(coll);
-		}).toThrow();
+		expect(dp.parseMonthComponent(coll)).not.toBeDefined();
 	});
 	
 	it('should refuse to parse a bad month in a month component', function () {
 		var coll = TimeShim.collector('2100-1');
 		
-		expect(function () {
-			dp.parseMonthComponent(coll);
-		}).toThrow();
+		expect(dp.parseMonthComponent(coll)).not.toBeDefined();
 	});
 	
 	it('should parse a full date', function () {
@@ -241,25 +227,19 @@ describe("DateProcessor", function () {
 	it('should refuse to parse a date with missing day', function () {
 		var coll = TimeShim.collector('2100-12');
 		
-		expect(function () {
-			dp.parseDateComponent(coll);
-		}).toThrow();
+		expect(dp.parseDateComponent(coll)).not.toBeDefined();
 	});
 	
 	it('should refuse to parse a date with invalid day', function () {
 		var coll = TimeShim.collector('2100-12-32');
 		
-		expect(function () {
-			dp.parseDateComponent(coll);
-		}).toThrow();
+		expect(dp.parseDateComponent(coll)).not.toBeDefined();
 	});
 	
 	it('should refuse to parse a date with invalid day (leap year)', function () {
 		var coll = TimeShim.collector('2100-02-29');
 		
-		expect(function () {
-			dp.parseDateComponent(coll);
-		}).toThrow();
+		expect(dp.parseDateComponent(coll)).not.toBeDefined();
 	});
 	
 	it('should parse a date with a time', function () {
@@ -307,7 +287,12 @@ describe("DateProcessor", function () {
 	it('should parse a time with no date', function () {
 		var dp = TimeShim.dateProcessor('20:02');
 		expect(dp.parseDateOrTimeString()).toEqual({year:0,month:0,day:0,hour:20,minute:02,second:0});
-	})
+	});
+	
+	it('should return null if the datetime can\'t be parsed', function () {
+		var dp = TimeShim.dateProcessor('3 minutes from last Sunday');
+		expect(dp.parseDateOrTimeString()).not.toBeDefined();
+	});
 });
 
 describe("ModernizrTimeShim", function () {
