@@ -126,6 +126,46 @@ describe("TimeShimCollectSequence", function () {
 			message: "You cannot strip leading/trailing whitespace once you have begun collecting from the input.",
 		});
 	});
+	
+	it('should peek at 1 element when no count is specified', function () {
+		var seq = "abcdefghijkl";
+		var collector = TimeShim.collector(seq);
+		
+		expect(collector.peek()).toEqual('a');
+		collector.seek(3);
+		expect(collector.peek()).toEqual('d');
+	});
+	
+	it('should peek at n elements when count is specified', function () {
+		var seq = "abcdefghijkl";
+		var collector = TimeShim.collector(seq);
+		
+		expect(collector.peek(4)).toEqual('abcd');
+		expect(collector.getPosition()).toEqual(0);
+		expect(collector.peek(8)).toEqual('abcdefgh');
+	});
+	
+	it('should return a shortened string if the input is too short', function () {
+		var seq = "abcd";
+		var collector = TimeShim.collector(seq);
+		
+		expect(collector.peek(6)).toEqual('abcd');
+	});
+	
+	it('should not allow a negative length', function () {
+		var seq = "abcd";
+		var collector = TimeShim.collector(seq);
+		
+		expect(function () {collector.peek(-5)}).toThrow();	
+	});
+	
+	it('should return from the middle of the string', function () {
+		var seq = "abcdefghijkl";
+		var collector = TimeShim.collector(seq);
+		
+		collector.seek(4);
+		expect(collector.peek(4)).toEqual('efgh');	
+	});
 });
 
 describe("DateProcessor", function () {

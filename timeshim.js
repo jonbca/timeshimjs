@@ -59,8 +59,21 @@ var TimeShim = (function () {
             position += num;
         };
 
-        coll.peek = function () {
-            return input[position];
+        coll.peek = function (howMany) {
+            howMany = howMany || 1;
+
+            if (howMany === 0) {
+                return '';
+            } else if (howMany < 0) {
+                throw {
+                    name: "IllegalArgument",
+                    message: "Can't peek into the past."
+                };
+            } else if (howMany + position >= input.length) {
+                return input.slice(position);
+            } else {
+                return input.slice(position, position + howMany);
+            }
         };
 
         coll.skipWhitespace = function () {
@@ -138,9 +151,9 @@ var TimeShim = (function () {
 
             dp.parseMonthComponent = function (coll) {
                 var year_s = coll.collectSequence(/\d/),
-					year = 0,
-					month_s = '0',
-					month = 0;
+                    year = 0,
+                    month_s = '0',
+                    month = 0;
                 if (year_s.length < 4) {
                     throw {
                         name: "InvalidDate",
@@ -190,8 +203,8 @@ var TimeShim = (function () {
             dp.parseDateComponent = function (coll) {
                 var dateObj = dp.parseMonthComponent(coll),
                     maxDay = getDaysForMonth(dateObj.year, dateObj.month),
-					date_s = '0',
-					date = 0;
+                    date_s = '0',
+                    date = 0;
 
                 if (coll.isFinished() || coll.peek() !== '-') {
                     throw {
@@ -224,14 +237,14 @@ var TimeShim = (function () {
 
             dp.parseTimeComponent = function (coll) {
                 var hour_s = coll.collectSequence(/\d/),
-					hour = 0,
-					minute_s = '',
-					minute = 0,
-					second_s = '',
-					second = 0,
-					pos = 0,
-					nextTwoAreDigits = false,
-					possibleSeconds = '';
+                    hour = 0,
+                    minute_s = '',
+                    minute = 0,
+                    second_s = '',
+                    second = 0,
+                    pos = 0,
+                    nextTwoAreDigits = false,
+                    possibleSeconds = '';
                 if (hour_s.length !== 2) {
                     throw {
                         name: "InvalidTime",
@@ -304,10 +317,10 @@ var TimeShim = (function () {
 
             dp.parseDateOrTimeString = function () {
                 var coll = collector(dateString),
-					startPosition = 0,
-					dateObj = {},
-					timeObj = {},
-					result = null;
+                    startPosition = 0,
+                    dateObj = {},
+                    timeObj = {},
+                    result = null;
 
                 if (inContent) {
                     coll.skipWhitespace();
@@ -399,9 +412,9 @@ var TimeShim = (function () {
 
         processElement: function (element) {
             var hasDateTime = this.hasDateTime(element),
-				dp = null,
-				result = null,
-				d = null;
+                dp = null,
+                result = null,
+                d = null;
 
             if (hasDateTime) {
                 dp = dateProcessor(element.datetime);
