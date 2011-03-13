@@ -363,7 +363,7 @@ var TimeShim = (function () {
             var elements = document.getElementsByTagName('time'),
                 i = 0;
 
-            for (i = elements.length; i >= 0; i -= 1) {
+            for (i = 0; i < elements.length; i += 1) {
                 this.processElement(elements[i]);
             }
         },
@@ -383,7 +383,7 @@ var TimeShim = (function () {
         },
 
         processElement: function (element) {
-            var hasDateTime = this.hasDateTime(element),
+            var hasDateTime = !!element.datetime,
                 dp = null,
                 result = null,
                 d = null;
