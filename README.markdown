@@ -12,6 +12,9 @@ This is very much a work in progress, but in the end it will support:
 
 Currently it follows the spec's parsing rules very closely (practically step by step), and this may not be the most efficient way of handling it. I'd be interested in refactoring with regexes if this reduces code size and improves performance.
 
+## Coding Style
+It's my aim to have the code pass [JSLint](http://www.jslint.com/) with only _The Good Parts_. The code style will also adhere to Crockford's standard in _Javascript: The Good Parts_, enforced by [_jsbeautifier_](http://jsbeautifier.org) with the `--space-after-anon-function --indent-size 4` options.
+
 ## Testing
 This tool uses [Jasmine](http://pivotal.github.com/jasmine/) for testing. To run the tests, open the [SpecRunner.html](timeshimjs/blob/master/SpecRunner.html) file in any browser. The Jasmine  files and stuff are included in the [lib](timeshimjs/tree/master/lib) directory, and the specs are in [spec](timeshimjs/tree/master/spec).
 
@@ -21,7 +24,7 @@ Include the _timeshim.js_ file your HTML page. To use the Modernizr test, you'll
     <script src="lib/modernizr-1.7.min.js" type="text/javascript"></script>
     <script src="timeshim.js" type="text/javascript"></script>
     <script type="text/javascript">
-        if(!Modernizr.timetag) {
+        if (!Modernizr.timetag) {
             TimeShim.apply();
         }
     </script>
