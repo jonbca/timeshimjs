@@ -23,19 +23,18 @@ var TimeShim = (function (){
 	HTML 5 specification:
 	http://dev.w3.org/html5/spec/Overview.html#collect-a-sequence-of-characters */
 	var collector = function(input, position) {
-		var coll = {},
-			position = position || 0;
+		var coll = {};
+		position = position || 0;
 		
 		var failIfStarted = function() {
-			if (position != 0) {
+			if (position !== 0) {
 				throw { name: "IllegalState",
-				 		message: "You cannot strip leading/trailing whitespace once you have begun collecting from the input."
+				message: "You cannot strip leading/trailing whitespace once you have begun collecting from the input."
 				};
 			}
-		}
+		};
 		
 		coll.collectSequence = function(pattern) {
-			var len = input.length;
 			var result = [];
 			var initialPosition = position;
 
@@ -59,7 +58,7 @@ var TimeShim = (function (){
 		
 		coll.peek = function() {
 			return input[position];
-		}
+		};
 		
 		coll.skipWhitespace = function() {
 			var initialPosition = position;
@@ -80,7 +79,7 @@ var TimeShim = (function (){
 			
 			input = input.replace(/[\r\n]/g, "");
 			return input;
-		}
+		};
 		
 		coll.isFinished = function() {
 			return position >= input.length;
@@ -88,7 +87,7 @@ var TimeShim = (function (){
 		
 		coll.getPosition = function() {
 			return position;
-		}
+		};
 		
 		coll.seek = function(new_pos) {
 			position = new_pos || 0;
@@ -97,7 +96,7 @@ var TimeShim = (function (){
 				throw {name: "IllegalState",
 				message: "Cannot seek beyond the length or before the start of input."};
 			}
-		}
+		};
 		
 		coll.len = input.length;
 		
@@ -125,13 +124,13 @@ var TimeShim = (function (){
 				case 11:
 					return 30;
 				case 2:
-					if(year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)) {
+					if(year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0)) {
 						return 29;
 					} else {
 						return 28;
 					}
 			}
-		}
+		};
 		
 		dp.parseMonthComponent = function(coll) {
 			var year_s = coll.collectSequence(/\d/);
@@ -140,13 +139,13 @@ var TimeShim = (function (){
 				message: ["Given year", year_s, "is not a valid year."].join(' ')};
 			}
 			
-			var year = parseInt(year_s);
+			var year = parseInt(year_s, 10);
 			if (year <= 0) {
 				throw {name: "InvalidDate",
 				message: ["Given year", year_s, "is not greater than 0"].join(' ')};
 			}
 			
-			if (coll.isFinished() || coll.peek() != '-') {
+			if (coll.isFinished() || coll.peek() !== '-') {
 				throw {name: "InvalidDate",
 				message: "Date string has no month"};
 			} else {
@@ -154,12 +153,12 @@ var TimeShim = (function (){
 			}
 			
 			var month_s = coll.collectSequence(/\d/);
-			if (month_s.length != 2) {
+			if (month_s.length !== 2) {
 				throw {name: "InvalidDate",
 				message: ["Given month", month_s, "is not 2 digits long."].join(' ')};
 			}
 			
-			var month = parseInt(month_s);
+			var month = parseInt(month_s, 10);
 			if ( month < 0 || month > 12) {
 				throw {name: "InvalidDate",
 				message: ["Given month", month_s, "is not between 1 and 12."].join(' ')};
@@ -170,10 +169,10 @@ var TimeShim = (function (){
 		
 		dp.parseDateComponent = function(coll) {
 			var dateObj = dp.parseMonthComponent(coll),
-				maxDay = getDaysForMonth(dateObj["year"],
-					dateObj["month"]);
+				maxDay = getDaysForMonth(dateObj.year,
+					dateObj.month);
 				
-			if (coll.isFinished() || coll.peek() != '-') {
+			if (coll.isFinished() || coll.peek() !== '-') {
 				throw {name: "InvalidDate",
 				message: "Date string has no day"};
 			} else {
@@ -181,35 +180,35 @@ var TimeShim = (function (){
 			}
 			
 			var date_s = coll.collectSequence(/\d/);
-			if (date_s.length != 2) {
+			if (date_s.length !== 2) {
 				throw {name: "InvalidDate",
 				message: ["Given day", date_s, "is not 2 digits long."].join(' ')};
 			}
 			
-			var date = parseInt(date_s);
+			var date = parseInt(date_s, 10);
 			if ( date < 1 || date > maxDay) {
 				throw {name: "InvalidDate",
 				message: ["Given day", date_s, "is not between 1 and", maxDay, "."].join(' ')};
 			}
 			
-			dateObj["day"] = date;
+			dateObj.day = date;
 			return dateObj;
-		}
+		};
 		
 		dp.parseTimeComponent = function(coll) {
 			var hour_s = coll.collectSequence(/\d/);
-			if (hour_s.length != 2) {
+			if (hour_s.length !== 2) {
 				throw {name: "InvalidTime",
 				message: ["Hour", hour_s, "is not 2 digits long."].join(' ')};
 			}
 			
-			var hour = parseInt(hour_s);
+			var hour = parseInt(hour_s, 10);
 			if (hour < 0 || hour > 23) {
 				throw {name: "InvalidTime",
 				message: ["Hour", hour_s, "is not between 0 and 23."].join(' ')};
 			}
 			
-			if (coll.isFinished() || coll.peek() != ':') {
+			if (coll.isFinished() || coll.peek() !== ':') {
 				throw {name: "InvalidTime",
 				message: "There is no minutes component."};
 			} else {
@@ -217,25 +216,25 @@ var TimeShim = (function (){
 			}
 			
 			var minute_s = coll.collectSequence(/\d/);
-			if (minute_s.length != 2) {
+			if (minute_s.length !== 2) {
 				throw {name: "InvalidTime",
 				message: ["Minute", minute_s, "is not 2 digits long."].join(' ')};
 			}
 			
-			var minute = parseInt(minute_s);
+			var minute = parseInt(minute_s, 10);
 			if (minute < 0 || minute > 59) {
 				throw {name: "InvalidTime",
 				message: ["Minute", minute_s, "is not between 0 and 59."].join(' ')};
 			}
 			
 			var second_s = '0';
-			if (!coll.isFinished() && coll.peek() == ':') {
+			if (!coll.isFinished() && coll.peek() === ':') {
 				coll.skip();
 				var pos = coll.getPosition();
-				var nextTwoAreDigits = coll.collectSequence(/\d/).length == 2;
+				var nextTwoAreDigits = coll.collectSequence(/\d/).length === 2;
 				coll.seek(pos);
 				
-				if (!coll.isFinished() && coll.getPosition() != coll.len - 1
+				if (!coll.isFinished() && coll.getPosition() !== coll.len - 1
 				    && nextTwoAreDigits) {
 					var possible_seconds = coll.collectSequence(/[\d.]/);
 					if(/^\d{2}(?:\.\d+)?$/.test(possible_seconds)) {
@@ -251,7 +250,7 @@ var TimeShim = (function (){
 			}
 			
 			return {"hour": hour, "minute": minute, "second": second};
-		}
+		};
 		
 		dp.parseDateOrTimeString = function() {
 			var coll = collector(dateString);
@@ -268,9 +267,9 @@ var TimeShim = (function (){
 				datePresent = false;
 			}
 			
-			if (datePresent && coll.peek() == 'T') {
+			if (datePresent && coll.peek() === 'T') {
 				coll.skip(1);
-			} else if (datePresent && (coll.isFinished() || coll.peek() != 'T')) {
+			} else if (datePresent && (coll.isFinished() || coll.peek() !== 'T')) {
 				timePresent = false;
 			} else {
 				coll.seek(startPosition);
@@ -285,12 +284,12 @@ var TimeShim = (function (){
 			if (datePresent || timePresent) {
 				result = {};
 				
-				result['year'] = dateObj['year'] || 0;
-				result['month'] = dateObj['month'] || 0;
-				result['day'] = dateObj['day'] || 0;
-				result['hour'] = timeObj['hour'] || 0;
-				result['minute'] = timeObj['minute'] || 0;
-				result['second'] = timeObj['second'] || 0;	
+				result.year = dateObj.year || 0;
+				result.month = dateObj.month || 0;
+				result.day = dateObj.day || 0;
+				result.hour = timeObj.hour || 0;
+				result.minute = timeObj.minute || 0;
+				result.second = timeObj.second || 0;	
 			}
 			
 			return result;
@@ -305,12 +304,12 @@ var TimeShim = (function (){
 		};
 		
 		dp.isValidDateWithOptionalTime = function () {
-			return /^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?)?$/.test(dateString)
+			return (/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?)?$/).test(dateString)
 				&& datePresent;
 		};
 		
 		dp.isValidDateInContentWithOptionalTime = function () {
-			return /^\s*\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?)?\s*$/.test(dateString)
+			return (/^\s*\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?)?\s*$/).test(dateString)
 			&& datePresent;
 		};
 		
@@ -318,24 +317,20 @@ var TimeShim = (function (){
 			return !(/^\s+/.test(dateString))
 				&& !(/\s+$/.test(dateString))
 				&& (datePresent || timePresent);
-		}
+		};
 		
 		dp.isValidDateOrTimeStringInContent = function () {
 			return datePresent || timePresent;
-		}
+		};
 		
 		return dp;
-	}
+	};
 	
 	return {
 		collector: collector,
 		dateProcessor: dateProcessor,
 		
 		apply: function() {
-			var timeElements = document.getElementByTagName('time');
-			for (var i = timeElements.length; i -= 1;) {
-				this.applyToElement(timeElements[i]);
-			}
 		},
 		
 		applyToElement: function(timeElement) {
@@ -343,7 +338,7 @@ var TimeShim = (function (){
 		},
 		
 		needsDate: function(element) {
-			return element.tagName.toLowerCase() == "time" && element.pubdate;
+			return element.tagName.toLowerCase() === "time" && element.pubdate;
 		},
 		
 		/**
@@ -357,7 +352,6 @@ var TimeShim = (function (){
 		},
 
 		processElement: function(element) {
-			var needsDate = this.needsDate(element);
 			var hasDateTime = this.hasDateTime(element);
 			var dp;
 			
@@ -368,13 +362,14 @@ var TimeShim = (function (){
 			}
 			
 			var result = dp.parseDateOrTimeString();
+			var d = null;
 			if (result) {
-				var d = new Date(result['year'], result['month'], result['day'],
-				result['hour'], result['minute'], Math.floor(result['second']),
-				(result['second'] - Math.floor(result['second']) * 1000));
+				d = new Date(result.year, result.month, result.day,
+					result.hour, result.minute, Math.floor(result.second),
+					(result.second - Math.floor(result.second) * 1000));
 			}
 			
 			element.valueAsDate = d;
-		},
+		}
 	};
-})();
+}());
