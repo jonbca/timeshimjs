@@ -369,34 +369,26 @@ var TimeShim = (function () {
         },
 
         needsDate: function (element) {
-            return element.tagName.toLowerCase() === "time" && element.pubdate;
-        },
-
-        /**
-         * Returns true if the given element has a datetime attribute.
-         * 
-         * @param {Element} element The element to test.
-         * @returns {Boolean} true if the element has a datetime attribute.
-         */
-        hasDatetime: function (element) {
-            return !!element.datetime;
+            return element.tagName.toLowerCase() === "time" && element.hasAttribute("pubdate");
         },
 
         processElement: function (element) {
-            var hasDateTime = !!element.datetime,
+            var hasDatetime = element.hasAttribute("datetime"),
                 dp = null,
                 result = null,
                 d = null;
 
-            if (hasDateTime) {
-                dp = dateProcessor(element.datetime);
+            if (hasDatetime) {
+                element.dateTime = element.getAttribute("datetime");
+                element.pubDate = element.hasAttribute("pubdate");
+                dp = dateProcessor(element.dateTime);
             } else {
                 dp = dateProcessor(element.textContent, true);
             }
 
             result = dp.parseDateOrTimeString();
             if (result) {
-                d = new Date(result.year, result.month, result.day, result.hour, result.minute, Math.floor(result.second), (result.second - Math.floor(result.second) * 1000));
+                d = new Date(result.year, result.month - 1, result.day, result.hour, result.minute, Math.floor(result.second), (result.second - Math.floor(result.second) * 1000));
             }
 
             element.valueAsDate = d;
