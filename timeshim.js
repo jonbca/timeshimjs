@@ -13,7 +13,7 @@ if (Modernizr) {
             testDate = new Date(testDateString),
             ret = true;
 
-        test.datetime = testDateString;
+        test.dateTime = testDateString;
         test.textContent = testDateString;
         ret = (test.valueAsDate && test.valueAsDate === testDate);
 
@@ -268,7 +268,7 @@ var TimeShim = (function () {
                 }
 
                 second = parseFloat(second_s);
-                if (second < 0 || second >= 60) {
+                if (second < 0 || second > 59) {
                     return;
                 }
 

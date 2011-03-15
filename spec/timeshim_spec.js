@@ -293,6 +293,11 @@ describe("DateProcessor", function () {
 		var dp = TimeShim.dateProcessor('3 minutes from last Sunday');
 		expect(dp.parseDateOrTimeString()).not.toBeDefined();
 	});
+	
+	it('should not allow a month greater than december', function () {
+	    var dp = TimeShim.dateProcessor('2010-13-02');
+	    expect(dp.parseDateOrTimeString()).not.toBeDefined();
+	});
 });
 
 describe("ModernizrTimeShim", function () {
@@ -305,29 +310,19 @@ describe("ModernizrTimeShim", function () {
 	});
 	
 	it('should say an element needs a date when pubdate is set', function () {
-		timetag.pubdate = true;
+		timetag.setAttribute("pubdate", true);
 		expect(TimeShim.needsDate(timetag)).toBeTruthy();
 	});
 	
 	it('should say an element does not need a date when pubdate is not set', function () {
-		timetag.pubdate = false;
 		expect(TimeShim.needsDate(timetag)).toBeFalsy();
 	});
 	
 	it('should say an element does not need a date if it is not a time element', function () {
-		nonTimeTag.pubdate = true;
+		nonTimeTag.setAttribute("pubdate");
 		expect(TimeShim.needsDate(nonTimeTag)).toBeFalsy();
 		
-		nonTimeTag.pubdate = false;
+		nonTimeTag.removeAttribute("pubdate");
 		expect(TimeShim.needsDate(nonTimeTag)).toBeFalsy();
-	});
-	
-	it('should say an element has a datetime if datetime is set', function () {
-		timetag.datetime = '2011-02-11';
-		expect(TimeShim.hasDatetime(timetag)).toBeTruthy();
-	});
-	
-	it('should say an element has no datetime if datetime is not set', function () {
-		expect(TimeShim.hasDatetime(timetag)).toBeFalsy();
 	});
 });
