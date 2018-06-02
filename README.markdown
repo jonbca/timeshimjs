@@ -16,7 +16,7 @@ Currently it follows the spec's parsing rules very closely (practically step by 
 It's my aim to have the code pass [JSLint](http://www.jslint.com/) with only _The Good Parts_. The code style will also adhere to Crockford's standard in _Javascript: The Good Parts_, enforced by [_jsbeautifier_](http://jsbeautifier.org) with the `--space-after-anon-function --indent-size 4` options.
 
 ## Testing
-This tool uses [Jasmine](http://pivotal.github.com/jasmine/) for testing. To run the tests, open the [SpecRunner.html](timeshimjs/blob/master/SpecRunner.html) file in any browser. The Jasmine  files and stuff are included in the [lib](timeshimjs/tree/master/lib) directory, and the specs are in [spec](timeshimjs/tree/master/spec).
+This tool uses [Jasmine](https://jasmine.github.io/) for testing. To run the tests, open the [SpecRunner.html](timeshimjs/blob/master/SpecRunner.html) file in any browser. The Jasmine  files and stuff are included in the [lib](timeshimjs/tree/master/lib) directory, and the specs are in [spec](timeshimjs/tree/master/spec).
 
 # How to Use
 Include the _timeshim.js_ file your HTML page. To use the Modernizr test, you'll also need to include the modernizr script before _timeshim.js_.
